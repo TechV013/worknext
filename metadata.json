@@ -1,0 +1,6 @@
+{
+  "name": "WorkNext",
+  "description": "AI-powered workforce platform that helps reduce unemployment and underemployment through career guidance, resume building, job discovery, and recruiter tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
