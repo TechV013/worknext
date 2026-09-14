@@ -3,11 +3,14 @@ import { apiClient } from './client';
 
 export interface ResumeAnalysis {
     id: number;
+    userId: number;
     score: number;
     strengths: string[];
     weaknesses: string[];
-    missingSkills: string[];
+    skillGaps: string[];
     suggestions: string[];
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface JobRecommendation {
