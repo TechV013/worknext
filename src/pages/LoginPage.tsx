@@ -6,20 +6,25 @@ import { Sparkles, Mail, Lock, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
 export const LoginPage: React.FC = () => {
-  const { login } = useApp();
-  const [email, setEmail] = useState('sarah.vance@worknext.ai');
-  const [password, setPassword] = useState('password123');
+  const { login, authError } = useApp();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      login(email, 'Sarah Vance');
-      setLoading(false);
+    setError(null);
+    try {
+      await login(email, password);
       navigate('/dashboard');
-    }, 600);
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,6 +38,12 @@ export const LoginPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Welcome Back</h1>
             <p className="text-xs text-slate-500">Log in to track applications, resume scores & mentor sessions</p>
           </div>
+
+          {error && (
+            <div className="px-4 py-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-medium">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ThemeMode, Language, FontSize, UserProfile, Job, NotificationItem } from '../types';
 import { mockCurrentUser, mockJobs, mockNotifications } from '../data/mockData';
+import { loginApi } from '../api/auth';
 
 interface AppContextType {
   theme: ThemeMode;
@@ -18,8 +19,9 @@ interface AppContextType {
   toggleHighContrast: () => void;
   
   isLoggedIn: boolean;
-  login: (email?: string, name?: string) => void;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  authError: string | null;
   
   user: UserProfile;
   setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
@@ -168,23 +170,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     return localStorage.getItem('worknext_is_logged_in') === 'true';
   });
+  const [authError, setAuthError] = useState<string | null>(null);
   const [user, setUser] = useState<UserProfile>(mockCurrentUser);
 
-  const login = (email?: string, name?: string) => {
-    setIsLoggedIn(true);
+  const login = async (email: string, password: string) => {
+    setAuthError(null);
+    const data = await loginApi(email, password);
+    localStorage.setItem('worknext_token', data.token);
     localStorage.setItem('worknext_is_logged_in', 'true');
-    if (name || email) {
-      setUser(prev => ({
-        ...prev,
-        ...(name ? { name } : {}),
-        ...(email ? { email } : {})
-      }));
-    }
+    setIsLoggedIn(true);
+    setUser(prev => ({
+      ...prev,
+      name: data.user.name,
+      email: data.user.email,
+    }));
   };
 
   const logout = () => {
     setIsLoggedIn(false);
     localStorage.setItem('worknext_is_logged_in', 'false');
+    localStorage.removeItem('worknext_token');
   };
   const [jobs] = useState<Job[]>(mockJobs);
   const [savedJobIds, setSavedJobIds] = useState<string[]>(mockCurrentUser.savedJobIds);
@@ -292,6 +297,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         isLoggedIn,
         login,
         logout,
+        authError,
         user,
         setUser,
         jobs,

@@ -9,7 +9,7 @@ import { JobFilterForm } from '../components/forms/JobFilterForm';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Button } from '../components/ui/Button';
 import { Sparkles, X, CheckCircle2, Loader2 } from 'lucide-react';
-import { getJobSkillGaps, getJobMatch, JobMatch } from '../api/ai';
+import { getJobSkillGaps, getJobMatch, JobMatch, JobSkillGap } from '../api/ai';
 
 export const LocalJobFinderPage: React.FC = () => {
   const { jobs, applyForJob, appliedJobIds, savedJobIds, toggleSaveJob } = useApp();
@@ -22,7 +22,7 @@ export const LocalJobFinderPage: React.FC = () => {
   const [minMatchScore, setMinMatchScore] = useState(50);
 
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [aiData, setAiData] = useState<{ gaps: string[] } | null>(null);
+  const [aiData, setAiData] = useState<JobSkillGap | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   
@@ -43,7 +43,7 @@ export const LocalJobFinderPage: React.FC = () => {
 
     // Fetch Skill Gaps
     getJobSkillGaps(jobId)
-        .then(data => setAiData({ gaps: data.gaps }))
+        .then(data => setAiData(data))
         .catch(() => setAiError('Unable to load AI skill data.'))
         .finally(() => setAiLoading(false));
 
@@ -206,7 +206,11 @@ export const LocalJobFinderPage: React.FC = () => {
                             <div className="text-xs">
                               <p className="font-semibold">Missing Skills:</p>
                               <ul className="list-disc ml-4">
-                                {aiData.gaps.length > 0 ? aiData.gaps.map(g => <li key={g}>{g}</li>) : <li>None!</li>}
+                                {aiData.missingSkills.length > 0 ? aiData.missingSkills.map(g => <li key={g.name}>{g.name}</li>) : <li>None!</li>}
+                              </ul>
+                              <p className="mt-2 font-semibold">Matched Skills:</p>
+                              <ul className="list-disc ml-4">
+                                {aiData.matchedSkills.length > 0 ? aiData.matchedSkills.map(s => <li key={s}>{s}</li>) : <li>None matched</li>}
                               </ul>
                             </div>
                          ) : null}

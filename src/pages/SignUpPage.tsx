@@ -2,26 +2,35 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MainLayout } from '../layouts/MainLayout';
 import { useApp } from '../context/AppContext';
-import { Sparkles, Mail, Lock, User, Briefcase, ArrowRight } from 'lucide-react';
+import { Sparkles, Mail, Lock, User } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { registerApi } from '../api/auth';
 
 export const SignUpPage: React.FC = () => {
   const { login } = useApp();
-  const [role, setRole] = useState<'jobseeker' | 'recruiter'>('jobseeker');
+  const [role, setRole] = useState<'JOB_SEEKER' | 'RECRUITER'>('JOB_SEEKER');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      login(email, name || 'Sarah Vance');
-      setLoading(false);
+    setError(null);
+    try {
+      const data = await registerApi(name, email, password, role);
+      localStorage.setItem('worknext_token', data.token);
+      localStorage.setItem('worknext_is_logged_in', 'true');
+      await login(email, password);
       navigate('/dashboard');
-    }, 600);
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,13 +45,12 @@ export const SignUpPage: React.FC = () => {
             <p className="text-xs text-slate-500">Accelerate your career with AI job matching and ATS resumes</p>
           </div>
 
-          {/* Role selector */}
           <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-semibold">
             <button
               type="button"
-              onClick={() => setRole('jobseeker')}
+              onClick={() => setRole('JOB_SEEKER')}
               className={`py-2 rounded-lg transition-all ${
-                role === 'jobseeker'
+                role === 'JOB_SEEKER'
                   ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400'
               }`}
@@ -51,9 +59,9 @@ export const SignUpPage: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setRole('recruiter')}
+              onClick={() => setRole('RECRUITER')}
               className={`py-2 rounded-lg transition-all ${
-                role === 'recruiter'
+                role === 'RECRUITER'
                   ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400'
               }`}
@@ -61,6 +69,12 @@ export const SignUpPage: React.FC = () => {
               Employer / Recruiter
             </button>
           </div>
+
+          {error && (
+            <div className="px-4 py-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-medium">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSignUp} className="space-y-4">
             <div>
@@ -106,7 +120,7 @@ export const SignUpPage: React.FC = () => {
                 <input
                   type="password"
                   required
-                  placeholder="At least 8 characters"
+                  placeholder="At least 6 characters"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"

@@ -14,15 +14,35 @@ export interface ResumeAnalysis {
 }
 
 export interface JobRecommendation {
-    id: string;
-    title: string;
-    company: string;
-    matchScore: number;
+    score: number;
+    semanticScore: number;
+    skillScore: number;
+    experienceScore: number;
+    preferenceScore: number;
+    roleScore: number;
+    matchedSkills: string[];
+    missingSkills: string[];
+    explanation: { summary: string; strengths: string[]; gaps: string[] };
+    job: {
+        id: number;
+        title: string;
+        company: string;
+        description: string;
+        location: string;
+        jobType: string;
+        salary?: string;
+        experience?: string;
+        isRemote: boolean;
+        skills: { skill: { name: string } }[];
+    };
 }
 
 export interface JobSkillGap {
-    jobId: number;
-    gaps: string[];
+    matchedSkills: string[];
+    missingSkills: { name: string; priority: string; recommendation: string }[];
+    requiredSkillCount: number;
+    matchedSkillCount: number;
+    coverage: number;
 }
 
 export interface JobMatch {
@@ -35,20 +55,25 @@ export interface JobMatch {
     roleScore: number;
     matchedSkills: string[];
     missingSkills: string[];
-    explanation: string;
+    explanation: { summary: string; strengths: string[]; gaps: string[] };
 }
 
-export interface RecruiterCandidateRanking {
-    candidateId: string;
-    userId: string;
-    applicationId: string;
-    name: string;
-    rank: number;
+export interface RecruiterCandidate {
+    userId: number;
+    applicationId: number;
     score: number;
+    semanticScore: number;
+    skillScore: number;
+    experienceScore: number;
     matchedSkills: string[];
     missingSkills: string[];
     applicationStatus: string;
-    explanation: string;
+    explanation: { summary: string; strengths: string[]; gaps: string[] };
+}
+
+export interface RecruiterCandidateRanking {
+    jobId: number;
+    candidates: RecruiterCandidate[];
 }
 
 export const getRecommendedJobs = async (limit?: number): Promise<JobRecommendation[]> => {
@@ -64,14 +89,14 @@ export const getJobMatch = async (jobId: number | string): Promise<JobMatch> => 
     return apiClient(`/ai/jobs/${numericId}/match`);
 };
 
-export const getRecruiterCandidates = async (jobId: number): Promise<RecruiterCandidateRanking[]> => {
+export const getRecruiterCandidates = async (jobId: number): Promise<RecruiterCandidateRanking> => {
     return apiClient(`/ai/recruiter/jobs/${jobId}/candidates`);
 };
 
-export const analyzeResume = async (resumeId: string): Promise<ResumeAnalysis> => { // Changed resumeId to string to match mockData
+export const analyzeResume = async (resumeId: number): Promise<ResumeAnalysis> => {
     return apiClient(`/ai/resumes/${resumeId}/analyze`, { method: 'POST' });
 };
 
-export const getResumeAnalysis = async (resumeId: string): Promise<ResumeAnalysis> => {
+export const getResumeAnalysis = async (resumeId: number): Promise<ResumeAnalysis> => {
     return apiClient(`/ai/resumes/${resumeId}/analysis`);
 };

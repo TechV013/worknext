@@ -17,7 +17,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { getRecommendedJobs } from '../api/ai';
+import { getRecommendedJobs, JobRecommendation } from '../api/ai';
 
 export const UserDashboardPage: React.FC = () => {
   const { user, savedJobIds, appliedJobIds } = useApp();
@@ -30,30 +30,25 @@ export const UserDashboardPage: React.FC = () => {
       try {
         setIsLoading(true);
         const data = await getRecommendedJobs(3);
-        // Note: The UI expects a Job object. The API returns JobRecommendation which might be a subset.
-        // I need to fetch the full job details or adapt the JobCard.
-        // Assuming getRecommendedJobs returns objects that can be partially mapped to Job or I should fetch details.
-        // Given instructions, adapt API response in smallest way.
-        // I will map JobRecommendation to Job for JobCard.
-        const jobs = data.map(j => ({
-            id: j.id,
-            title: j.title,
-            company: j.company,
-            matchScore: j.matchScore,
-            companyLogo: '', // Need to fill or adapt
-            location: 'Remote/Local', // Placeholder
-            isRemote: true,
-            type: 'Full-time',
-            category: 'Tech',
-            salaryMin: 0,
-            salaryMax: 0,
-            salaryPeriod: 'year',
-            postedDate: 'Recently',
-            description: '',
-            requirements: [],
-            skillGaps: [],
-            applicantsCount: 0,
-            experienceLevel: 'Mid-Level'
+        const jobs = data.map((r: JobRecommendation) => ({
+          id: String(r.job.id),
+          title: r.job.title,
+          company: r.job.company,
+          companyLogo: '',
+          location: r.job.location,
+          isRemote: r.job.isRemote,
+          type: r.job.jobType,
+          category: 'Tech',
+          salaryMin: 0,
+          salaryMax: 0,
+          salaryPeriod: 'year',
+          postedDate: 'Recently',
+          description: r.job.description,
+          requirements: [],
+          matchScore: Math.round(r.score),
+          skillGaps: r.missingSkills,
+          applicantsCount: 0,
+          experienceLevel: r.job.experience || 'Not specified',
         } as unknown as Job));
         setRecommendedJobs(jobs);
       } catch (err) {
@@ -160,7 +155,7 @@ export const UserDashboardPage: React.FC = () => {
           ) : error ? (
             <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 text-xs font-sans font-medium">{error}</div>
           ) : recommendedJobs.length === 0 ? (
-            <div className="p-4 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 text-xs font-sans">No recommendations available yet.</div>
+            <div className="p-4 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 text-xs font-sans">No recommendations available yet. Upload your resume to get AI-matched jobs.</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {recommendedJobs.map(job => (
