@@ -1,4 +1,4 @@
-const BASE_URL = '/api'; // Assuming a relative path for the proxy or direct API
+const BASE_URL = (import.meta.env.VITE_API_URL || '') + '/api';
 
 export const apiClient = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('worknext_token');
