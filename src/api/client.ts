@@ -1,4 +1,5 @@
-const BASE_URL = (import.meta.env.VITE_API_URL ?? 'https://empowering-workforcebackend.vercel.app') + '/api';
+export const API_BASE_URL = ((import.meta.env.VITE_API_URL ?? 'https://empowering-workforcebackend.vercel.app').replace(/\/$/, '')) + '/api';
+const BASE_URL = API_BASE_URL;
 
 export const apiClient = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('worknext_token');

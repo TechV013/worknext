@@ -1,4 +1,6 @@
-const BASE_URL = '/api';
+import { API_BASE_URL } from './client';
+
+const BASE_URL = API_BASE_URL;
 
 export interface AuthUser {
   id: number;
