@@ -1,3 +1,4 @@
+import logo from "../../assets/logo.png";
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Github, Twitter, Linkedin, CheckCircle2, ArrowRight } from 'lucide-react';
@@ -105,17 +106,59 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="pt-8 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
-          <p>© {new Date().getFullYear()} WorkNext AI Inc. Built for human potential.</p>
-          <div className="flex items-center gap-6 text-stone-400">
-            <Link to="/settings" className="hover:text-teal-400 transition-colors">Accessibility</Link>
-            <Link to="/settings" className="hover:text-teal-400 transition-colors">Privacy Policy</Link>
-            <Link to="/settings" className="hover:text-teal-400 transition-colors">Terms of Service</Link>
+                {/* Bottom bar */}
+        <div className="pt-8 border-t border-stone-800 flex flex-col items-center gap-5 text-xs text-stone-500">
+
+          {/* JSL Works Logo */}
+          <div className="flex flex-col items-center gap-2">
+            <img
+              src={logo}
+              alt="JSL Works"
+              className="w-32 h-auto object-contain"
+            />
+
+            <p className="text-sm text-stone-400">
+              Project done by{" "}
+              <span className="text-white font-semibold">
+                The Bachelors
+              </span>
+            </p>
           </div>
+
+          {/* Copyright and Links */}
+          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>
+              © {new Date().getFullYear()} WorkNext. Built for human potential.
+            </p>
+
+            <div className="flex items-center gap-6 text-stone-400">
+              <Link
+                to="/settings"
+                className="hover:text-teal-400 transition-colors"
+              >
+                Accessibility
+              </Link>
+
+              <Link
+                to="/settings"
+                className="hover:text-teal-400 transition-colors"
+              >
+                Privacy Policy
+              </Link>
+
+              <Link
+                to="/settings"
+                className="hover:text-teal-400 transition-colors"
+              >
+                Terms of Service
+              </Link>
+            </div>
+          </div>
+
         </div>
       </div>
     </footer>
   );
 };
 
+      
